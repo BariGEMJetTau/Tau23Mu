@@ -3,10 +3,10 @@
 ## Setting the environment
 
 ```
-cmsrel CMSSW_12_4_11_patch3
-cd CMSSW_12_4_11_patch3/src
+cmsrel CMSSW_13_0_10
+cd CMSSW_13_0_10/src
 cmsenv
-git clone https://github.com/BariGEMJetTau/Tau23Mu.git .
+git clone https://github.com/Ma128-bit/Tau23Mu.git .
 scram b -j20
 ```
 <p>&nbsp;</p>
@@ -21,8 +21,15 @@ Example:
 cmsRun SkimTools/SkimTau3Mu/test/run_MC2022_PatAndTree_cfg.py
 ```
 
-To run the ntuple production on the grid, the crab configurations files for the submission of the jobs are in the `CrabSubmission` directory.
+To run the ntuple production on the grid, the crab configurations files for the submission of the jobs are in the `CrabSubmission` directory. Example:
+```
+crab submit -c crab_Tau3mu_reco2023_RunC-v1_stream0_cfg.py 
+```
 
+To submit all the jobs use:
+```
+source submitAllJobs.sh
+```
 <p>&nbsp;</p>
 
 ## Run the analysis
@@ -36,15 +43,16 @@ The analysis of the ntuples is performed by using:
 The script `createRunFile_new.py` allows for the creation of jobs for the submission of the analysis on the batch system.
 * If you want to run on a MC sample:
 ```
-python createRunFile_new.py [DatasetType] [AnalysisType] --n [NTreesPerJob] --MCprocess --outName [outNameLabel]
+python createRunFile_new.py [DatasetType] [AnalysisType] --n [NTreesPerJob] --MCprocess [MCprocess_name] --outName [outNameLabel]
 ```
 * If you want to run on data sample:
 ```
-python createRunFile_new.py [DatasetType] [AnalysisType] --n [NTreesPerJob] --run [DataEra] --outName [outNameLabel]
+python createRunFile_new.py --run [DataEra] --n [NTreesPerJob] [DatasetType] [AnalysisType] --outName [outNameLabel]
 ```
     * `DatasetType` = `MC`, `data`, `data_control`
     * `AnalysisType` = `tau3mu`, `control`
     * `DataEra` = `2022C_0`, ..., `2022G_7`
+    * `MCprocess_name` = `Ds_preE`,`Ds_postE` ... (for 2022)
     * `outNameLabel` = label you want to add to the analyzed root files 
 
 A directory ( called `[MC/DataEra]_[AnalysisType]_[outNameLabel]` ) and the file for the submission are created. The job submission on the batch system can be launched by sourcing the .sh script that was created:\
@@ -52,11 +60,11 @@ A directory ( called `[MC/DataEra]_[AnalysisType]_[outNameLabel]` ) and the file
 
 Here are some examples for the creation of jobs:
 * to run the tau3mu analysis on the DsTau3mu MC sample:\
-`python createRunFile_new.py Ds MC tau3mu --n 150 --MCprocess --outName test`
+`python createRunFile_new.py MC tau3mu --n 150 --MCprocess Ds --outName test`
 * to run the tau3mu analysis on the data: era C, stream 0:\
-`python createRunFile_new.py data tau3mu --n 150 --run 2022C_0 --outName test`
+`python createRunFile_new.py --run 2022C_0 --n 150 data tau3mu --outName test`
 * to run the control channel analysis on the DsPhiPi MC sample:\
-`python createRunFile_new.py --n 150 --MCprocess DsPhiPi MC tau3mu --outName test` # N.B: use the flag `tau3mu` here! the submission needs to be fixed to have a consistent definition...
+`python createRunFile_new.py MC tau3mu --n 150 --MCprocess DsPhiPi --outName test` # N.B: use the flag `tau3mu` here! the submission needs to be fixed to have a consistent definition...
 * to run the control channel analysis the data: of era E, stream 1:\
 `python createRunFile_new.py data_control control --n 150 --run 2022E_1  --outName test`
 
@@ -73,10 +81,12 @@ Here are some examples for submitting the jobs for:
 * control analysis on all the 2022 datasets:\
 `source submitAllJobs_new.sh 150 control test`
 
+Use `condor_q` to check the status of the jobs.
+
 <p>&nbsp;</p>
 
 ### Merging the analyzed files for all the datasets
-The script `haddAllJobs_new.sh` allows for the automatic merging of the output files from the analysis for all the datasets.\
+The script `haddAllJobs_new.sh` (or `haddAllJobs_2023.sh` for 2023) allows for the automatic merging of the output files from the analysis for all the datasets.\
 `source haddAllJobs_new.sh [analysisType] [outNameLabel]`
 
 Here are some examples for merging the analyzed files for:
@@ -85,3 +95,30 @@ Here are some examples for merging the analyzed files for:
 * control channel analysis on all the 2022 datasets:\
 `source haddAllJobs_new.sh control test`
 
+<p>&nbsp;</p>
+
+### Merge of streams (0...7) for each era
+The script `haddAllJobs_perEra.sh` (or `haddAllJobs_perEra2023.sh` for 2023) allows for the automatic merging of the streams.\
+Creare the directory `JobAdd_perEra` and then:
+```
+source haddAllJobs_perEra.sh [analysisType] [outNameLabel]
+```
+
+<p>&nbsp;</p>
+
+### Resubmit Failed Jobs
+The script `resubmitFailedJobs.sh` for 2023 allows for the resubmission of the failed jobs in all eras.
+
+<p>&nbsp;</p>
+
+## Measurement of luminosity
+Run the script `reportAllJobs.sh`, this allows for the creation of the file `processedLumis.json` for each stream and era.\
+On Lxplus run:
+```
+source /cvmfs/cms-bril.cern.ch/cms-lumi-pog/brilws-docker/brilws-env
+```
+to enable the BRIL Work Suite.\
+Then use `AllLumi.sh` to measure the luminosity of each stream of a specific era.\
+The mean value of these luminosities is the final luminosity of that era.
+
+<p>&nbsp;</p>
