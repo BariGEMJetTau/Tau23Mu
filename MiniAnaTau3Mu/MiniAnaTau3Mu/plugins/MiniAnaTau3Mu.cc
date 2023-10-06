@@ -130,6 +130,8 @@
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+typedef pair<const reco::MuonChamberMatch*, const reco::MuonSegmentMatch*> MatchPair;
 ////
 class MiniAnaTau3Mu : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 public:
@@ -140,6 +142,7 @@ public:
     //float dRtriggerMatch(pat::Muon m, trigger::TriggerObjectCollection triggerObjects);
     float dRtriggerMatch(pat::Muon m, vector<pat::TriggerObjectStandAlone> triggerObjects);
     void beginRun(edm::Run const &, edm::EventSetup const&, edm::Event const&);
+    void fillMatchInfo(const pat::Muon&); 
     
     
 private:
@@ -212,6 +215,9 @@ private:
     std::vector<double>  Muon_GLnormChi2, Muon_GLhitPattern_numberOfValidMuonHits,  Muon_trackerLayersWithMeasurement,  Muon_Numberofvalidpixelhits,  Muon_outerTrack_p,  Muon_outerTrack_eta, Muon_outerTrack_phi,  Muon_outerTrack_normalizedChi2,  Muon_outerTrack_muonStationsWithValidHits,  Muon_innerTrack_p,  Muon_innerTrack_eta,  Muon_innerTrack_phi,  Muon_innerTrack_normalizedChi2,  Muon_QInnerOuter;
     
     std::vector<double>   Muon_combinedQuality_updatedSta,  Muon_combinedQuality_trkKink,  Muon_combinedQuality_glbKink,  Muon_combinedQuality_trkRelChi2,  Muon_combinedQuality_staRelChi2,  Muon_combinedQuality_chi2LocalPosition,  Muon_combinedQuality_chi2LocalMomentum,  Muon_combinedQuality_localDistance,  Muon_combinedQuality_globalDeltaEtaPhi,  Muon_combinedQuality_tightMatch,  Muon_combinedQuality_glbTrackProbability,  Muon_calEnergy_em,  Muon_calEnergy_emS9,  Muon_calEnergy_emS25,  Muon_calEnergy_had,  Muon_calEnergy_hadS9,  Muon_segmentCompatibility,  Muon_caloCompatibility,  Muon_ptErrOverPt, Muon_BestTrackPt,  Muon_BestTrackPtErr, Muon_BestTrackEta,  Muon_BestTrackEtaErr,  Muon_BestTrackPhi,  Muon_BestTrackPhiErr;
+
+    std::vector<double>   Muon_match1_dX,  Muon_match1_pullX,  Muon_match1_pullDxDz,  Muon_match1_dY,  Muon_match1_pullY,  Muon_match1_pullDyDz;
+    std::vector<double>   Muon_match2_dX,  Muon_match2_pullX,  Muon_match2_pullDxDz,  Muon_match2_dY,  Muon_match2_pullY, Muon_match2_pullDyDz;
 
     std::vector<int>  Muon_simPdgId, Muon_simMotherPdgId, Muon_simFlavour,  Muon_simType, Muon_simBX, Muon_simTpEvent, Muon_simMatchQuality;
     std::vector<double>  Mu1_Pt,  Mu1_Eta,  Mu1_Phi,  Mu2_Pt,  Mu2_Eta,  Mu2_Phi,  Mu3_Pt,  Mu3_Eta,  Mu3_Phi, GenMatchMu1_SimPt, GenMatchMu2_SimPt, GenMatchMu3_SimPt,GenMatchMu1_SimEta, GenMatchMu2_SimEta, GenMatchMu3_SimEta, GenMatchMu1_SimPhi, GenMatchMu2_SimPhi, GenMatchMu3_SimPhi,  GenMatchMu1_Pt,  GenMatchMu2_Pt,  GenMatchMu3_Pt,  GenMatchMu1_Eta,  GenMatchMu2_Eta,  GenMatchMu3_Eta,  GenMatchMu1_Phi,  GenMatchMu2_Phi,  GenMatchMu3_Phi;
@@ -431,6 +437,120 @@ void removeTracks3(vector<reco::TransientTrack> &pvTracks, const std::vector<rec
   }
 }
     
+//mathing muon track and segment
+//taken from Bmm5 code https://github.com/drkovalskyi/Bmm5/blob/master/NanoAOD/plugins/BmmMuonIdProducer.cc
+
+const MatchPair&
+getBetterMatch(const MatchPair& match1, const MatchPair& match2){
+
+  // Prefer DT over CSC simply because it's closer to IP
+  // and will have less multiple scattering (at least for
+  // RB1 vs ME1/3 case). RB1 & ME1/2 overlap is tiny
+  if (match2.first->detector() == MuonSubdetId::DT and
+      match1.first->detector() != MuonSubdetId::DT)
+    return match2;
+
+  // For the rest compare local x match. We expect that
+  // segments belong to the muon, so the difference in
+  // local x is a reflection on how well we can measure it
+  if ( abs(match1.first->x - match1.second->x) >
+       abs(match2.first->x - match2.second->x) )
+    return match2;
+    
+  return match1;
+}
+
+float dX(const MatchPair& match){
+  if (match.first and match.second->hasPhi())
+    return (match.first->x - match.second->x);
+  else
+    return -99;
+}
+
+float pullX(const MatchPair& match){
+  if (match.first and match.second->hasPhi())
+    return dX(match) /
+      sqrt(pow(match.first->xErr, 2) + pow(match.second->xErr, 2));
+  else
+    return -99;
+}
+
+float pullDxDz(const MatchPair& match){
+  if (match.first and match.second->hasPhi())
+    return (match.first->dXdZ - match.second->dXdZ) /
+           sqrt(pow(match.first->dXdZErr, 2) + pow(match.second->dXdZErr, 2));
+  else
+    return -99;
+}
+float dY(const MatchPair& match){
+  if (match.first and match.second->hasZed())
+    return (match.first->y - match.second->y);
+  else
+    return -99;
+}
+
+float pullY(const MatchPair& match){
+  if (match.first and match.second->hasZed())
+    return dY(match) /
+      sqrt(pow(match.first->yErr, 2) + pow(match.second->yErr, 2));
+  else
+    return -99;
+}
+
+float pullDyDz(const MatchPair& match){
+  if (match.first and match.second->hasZed())
+    return (match.first->dYdZ - match.second->dYdZ) /
+           sqrt(pow(match.first->dYdZErr, 2) + pow(match.second->dYdZErr, 2));
+  else
+    return -99;
+}
+
+void MiniAnaTau3Mu::fillMatchInfo(const pat::Muon& muon){
+  // Initiate containter for results
+  const int n_stations = 2;
+  vector<MatchPair> matches;
+  for (unsigned int i=0; i < n_stations; ++i)
+    matches.push_back(pair(nullptr, nullptr));
+
+  // Find best matches
+  for (auto& chamberMatch : muon.matches()){
+    unsigned int station = chamberMatch.station() - 1;
+    if (station >= n_stations) continue;
+
+    // Find best segment match.
+    // We could consider all segments, but we will restrict to segments
+    // that match to this candidate better than to other muon candidates
+    for (auto& segmentMatch : chamberMatch.segmentMatches){
+      if ( not segmentMatch.isMask(reco::MuonSegmentMatch::BestInStationByDR) ||
+	   not segmentMatch.isMask(reco::MuonSegmentMatch::BelongsToTrackByDR) )
+	continue;
+
+      // Multiple segment matches are possible in different
+      // chambers that are either overlapping or belong to
+      // different detectors. We need to select one.
+      auto match_pair = MatchPair(&chamberMatch, &segmentMatch);
+      
+      if (matches[station].first)
+	matches[station] = getBetterMatch(matches[station], match_pair);
+      else
+	matches[station] = match_pair;
+    }
+  }
+  // Fill matching information
+  Muon_match1_dX.push_back(dX(matches[0]));
+  Muon_match1_pullX.push_back(pullX(matches[0]));
+  Muon_match1_pullDxDz.push_back(pullDxDz(matches[0]));
+  Muon_match1_dY.push_back(dY(matches[0]));
+  Muon_match1_pullY.push_back(pullY(matches[0]));
+  Muon_match1_pullDyDz.push_back(pullDyDz(matches[0]));
+
+  Muon_match2_dX.push_back(dX(matches[1]));
+  Muon_match2_pullX.push_back(pullX(matches[1]));
+  Muon_match2_pullDxDz.push_back(pullDxDz(matches[1]));
+  Muon_match2_dY.push_back(dY(matches[1]));
+  Muon_match2_pullY.push_back(pullY(matches[1]));
+  Muon_match2_pullDyDz.push_back(pullDyDz(matches[1]));
+}    
     
 void MiniAnaTau3Mu::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup, const edm::Event& iEvent) {
   /*
@@ -1844,7 +1964,10 @@ for(edm::View<pat::Muon>::const_iterator mu=muons->begin(); mu!=muons->end(), k<
 
         Muon_BestTrackPhi.push_back( mu->muonBestTrack()->phi() );
         Muon_BestTrackPhiErr.push_back( mu->muonBestTrack()->phiError() );
-    
+
+        //muon-segment matching variables
+        MiniAnaTau3Mu::fillMatchInfo(*mu);
+
         const reco::MuonIsolation Iso03 = mu->isolationR03();
         const reco::MuonIsolation Iso05 = mu->isolationR05();
         if (mu->isIsolationValid()) {
@@ -2084,6 +2207,21 @@ for(edm::View<pat::Muon>::const_iterator mu=muons->begin(); mu!=muons->end(), k<
 
     Muon_BestTrackPhi.clear();
     Muon_BestTrackPhiErr.clear();
+
+    //clear match var
+    Muon_match1_dX.clear();
+    Muon_match1_pullX.clear();
+    Muon_match1_pullDxDz.clear();
+    Muon_match1_dY.clear();
+    Muon_match1_pullY.clear();
+    Muon_match1_pullDyDz.clear();
+
+    Muon_match2_dX.clear();
+    Muon_match2_pullX.clear();
+    Muon_match2_pullDxDz.clear();
+    Muon_match2_dY.clear();
+    Muon_match2_pullY.clear();
+    Muon_match2_pullDyDz.clear();
 
     Muon_emEt03.clear();
     Muon_hadEt03.clear();
@@ -2484,6 +2622,21 @@ void MiniAnaTau3Mu::beginJob() {
     tree_->Branch("Muon_BestTrackEtaErr", &Muon_BestTrackEtaErr);
     tree_->Branch("Muon_BestTrackPhi", &Muon_BestTrackPhi);
     tree_->Branch("Muon_BestTrackPhiErr", &Muon_BestTrackPhiErr);
+
+    //muon match var
+    tree_->Branch("Muon_match1_dX",       &Muon_match1_dX);      
+    tree_->Branch("Muon_match1_pullX",    &Muon_match1_pullX);   
+    tree_->Branch("Muon_match1_pullDxDz", &Muon_match1_pullDxDz);
+    tree_->Branch("Muon_match1_dY",       &Muon_match1_dY);      
+    tree_->Branch("Muon_match1_pullY",    &Muon_match1_pullY);   
+    tree_->Branch("Muon_match1_pullDyDz", &Muon_match1_pullDyDz);
+                                                                 
+    tree_->Branch("Muon_match2_dX",       &Muon_match2_dX);
+    tree_->Branch("Muon_match2_pullX",    &Muon_match2_pullX);   
+    tree_->Branch("Muon_match2_pullDxDz", &Muon_match2_pullDxDz);
+    tree_->Branch("Muon_match2_dY",       &Muon_match2_dY);      
+    tree_->Branch("Muon_match2_pullY",    &Muon_match2_pullY);   
+    tree_->Branch("Muon_match2_pullDyDz", &Muon_match2_pullDyDz);
 
     tree_->Branch("Muon_emEt03", &Muon_emEt03);
     tree_->Branch("Muon_hadEt03", &Muon_hadEt03);
