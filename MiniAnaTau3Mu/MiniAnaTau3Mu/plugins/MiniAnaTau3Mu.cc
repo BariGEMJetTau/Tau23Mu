@@ -285,6 +285,7 @@ private:
 
     std::vector<double>  Muon_innerTrack_highPurity,  Muon_innerTrack_ValidFraction, Muon_Numberofvalidtrackerhits, Muon_validMuonHitComb, Muon_IP2D_BS,  Muon_IP3D_BS,  Muon_IP2D_PV,  Muon_IP3D_PV, Muon_SoftMVA_Val;
     std::vector<double>  Muon_nLostHitsInner, Muon_nLostHitsOn, Muon_nLostHitsOuter;
+    std::vector<double>  Muon_nLostLayersInner, Muon_nLostLayersOn, Muon_nLostLayersOuter;
     std::vector<double>  DistXY_PVSV,  DistXY_significance_PVSV;
     std::vector<double>  Triplet_IsoMu1, Triplet_IsoMu2, Triplet_IsoMu3;
     std::vector<double>  FlightDistBS_SV,  FlightDistBS_SV_Err,  FlightDistBS_SV_Significance;
@@ -1903,6 +1904,9 @@ for(edm::View<pat::Muon>::const_iterator mu=muons->begin(); mu!=muons->end(), k<
             Muon_nLostHitsInner.push_back(mu->innerTrack()->hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_INNER_HITS));
 	    Muon_nLostHitsOn.push_back(mu->innerTrack()->hitPattern().numberOfLostTrackerHits(reco::HitPattern::TRACK_HITS));
 	    Muon_nLostHitsOuter.push_back(mu->innerTrack()->hitPattern().numberOfLostTrackerHits(reco::HitPattern::MISSING_OUTER_HITS));
+            Muon_nLostLayersInner.push_back(mu->innerTrack()->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS));
+	    Muon_nLostLayersOn.push_back(mu->innerTrack()->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS));
+	    Muon_nLostLayersOuter.push_back(mu->innerTrack()->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_OUTER_HITS));
 
             Muon_innerTrack_p.push_back(mu->innerTrack()->p());
             Muon_innerTrack_eta.push_back(mu->innerTrack()->eta());
@@ -1914,10 +1918,12 @@ for(edm::View<pat::Muon>::const_iterator mu=muons->begin(); mu!=muons->end(), k<
             Muon_trackerLayersWithMeasurement.push_back(-999);
             Muon_Numberofvalidpixelhits.push_back(-999);
             Muon_Numberofvalidtrackerhits.push_back(-999);
-            Muon_trackerLayersWithMeasurement.push_back(-999);
             Muon_nLostHitsInner.push_back(-999);
 	    Muon_nLostHitsOn.push_back(-999);
 	    Muon_nLostHitsOuter.push_back(-999);
+            Muon_nLostLayersInner.push_back(-999);
+	    Muon_nLostLayersOn.push_back(-999);
+	    Muon_nLostLayersOuter.push_back(-999);
             Muon_innerTrack_p.push_back(-999);
             Muon_innerTrack_eta.push_back(-999);
             Muon_innerTrack_phi.push_back(-999);
@@ -2171,6 +2177,9 @@ for(edm::View<pat::Muon>::const_iterator mu=muons->begin(); mu!=muons->end(), k<
     Muon_nLostHitsInner.clear();
     Muon_nLostHitsOn.clear();
     Muon_nLostHitsOuter.clear();
+    Muon_nLostLayersInner.clear();
+    Muon_nLostLayersOn.clear();
+    Muon_nLostLayersOuter.clear();
     Muon_validMuonHitComb.clear();
     Muon_IP2D_BS.clear();
     Muon_IP3D_BS.clear();
@@ -2673,6 +2682,9 @@ void MiniAnaTau3Mu::beginJob() {
     tree_->Branch("Muon_nLostHitsInner", &Muon_nLostHitsInner);
     tree_->Branch("Muon_nLostHitsOn",    &Muon_nLostHitsOn);
     tree_->Branch("Muon_nLostHitsOuter", &Muon_nLostHitsOuter);
+    tree_->Branch("Muon_nLostLayersInner", &Muon_nLostLayersInner);
+    tree_->Branch("Muon_nLostLayersOn",    &Muon_nLostLayersOn);
+    tree_->Branch("Muon_nLostLayersOuter", &Muon_nLostLayersOuter);
     tree_->Branch("Muon_validMuonHitComb", &Muon_validMuonHitComb);
     tree_->Branch("Muon_IP2D_BS", &Muon_IP2D_BS);
     tree_->Branch("Muon_IP3D_BS", &Muon_IP3D_BS);

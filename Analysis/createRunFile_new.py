@@ -138,21 +138,29 @@ if args.anatype == 'tau3mu':
      
  
    if args.dataset == 'data' and args.run == '2022F_0':
-      path = '/lustre/cms/store/user/mbuonsan/ParkingDoubleMuonLowMass0/SkimTau3mu_2022eraF_stream0_Mini_v3/230504_152143'
+      path = '/lustre/cms/store/user/fsimone/ParkingDoubleMuonLowMass0/SkimTau3mu_2022eraF_stream0_Mini_v2/'
+      #path = '/lustre/cms/store/user/mbuonsan/ParkingDoubleMuonLowMass0/SkimTau3mu_2022eraF_stream0_Mini_v3/230504_152143'
    if args.dataset == 'data' and args.run == '2022F_1':
-      path = '/lustre/cms/store/user/mbuonsan/ParkingDoubleMuonLowMass1/SkimTau3mu_2022eraF_stream1_Mini_v3/230504_152215'
+      path = '/lustre/cms/store/user/fsimone/ParkingDoubleMuonLowMass1/SkimTau3mu_2022eraF_stream1_Mini_v2/'
+      #path = '/lustre/cms/store/user/mbuonsan/ParkingDoubleMuonLowMass1/SkimTau3mu_2022eraF_stream1_Mini_v3/230504_152215'
    if args.dataset == 'data' and args.run == '2022F_2':
-      path = '/lustre/cms/store/user/mbuonsan/ParkingDoubleMuonLowMass2/SkimTau3mu_2022eraF_stream2_Mini_v3/230504_152245'
+      path = '/lustre/cms/store/user/fsimone/ParkingDoubleMuonLowMass2/SkimTau3mu_2022eraF_stream2_Mini_v2/'
+      #path = '/lustre/cms/store/user/mbuonsan/ParkingDoubleMuonLowMass2/SkimTau3mu_2022eraF_stream2_Mini_v3/230504_152245'
    if args.dataset == 'data' and args.run == '2022F_3':
-      path = '/lustre/cms/store/user/mbuonsan/ParkingDoubleMuonLowMass3/SkimTau3mu_2022eraF_stream3_Mini_v3/230504_152316'
+      path = '/lustre/cms/store/user/fsimone/ParkingDoubleMuonLowMass3/SkimTau3mu_2022eraF_stream3_Mini_v2/'
+      #path = '/lustre/cms/store/user/mbuonsan/ParkingDoubleMuonLowMass3/SkimTau3mu_2022eraF_stream3_Mini_v3/230504_152316'
    if args.dataset == 'data' and args.run == '2022F_4':
-      path = '/lustre/cms/store/user/mbuonsan/ParkingDoubleMuonLowMass4/SkimTau3mu_2022eraF_stream4_Mini_v3/230504_152345'
+      path = '/lustre/cms/store/user/fsimone/ParkingDoubleMuonLowMass4/SkimTau3mu_2022eraF_stream4_Mini_v2/'
+      #path = '/lustre/cms/store/user/mbuonsan/ParkingDoubleMuonLowMass4/SkimTau3mu_2022eraF_stream4_Mini_v3/230504_152345'
    if args.dataset == 'data' and args.run == '2022F_5':
-      path = '/lustre/cms/store/user/mbuonsan/ParkingDoubleMuonLowMass5/SkimTau3mu_2022eraF_stream5_Mini_v3/230504_152415'
+      path = '/lustre/cms/store/user/fsimone/ParkingDoubleMuonLowMass5/SkimTau3mu_2022eraF_stream5_Mini_v2/'
+      #path = '/lustre/cms/store/user/mbuonsan/ParkingDoubleMuonLowMass5/SkimTau3mu_2022eraF_stream5_Mini_v3/230504_152415'
    if args.dataset == 'data' and args.run == '2022F_6':
-      path = '/lustre/cms/store/user/mbuonsan/ParkingDoubleMuonLowMass6/SkimTau3mu_2022eraF_stream6_Mini_v3/230504_152445'
+      path = '/lustre/cms/store/user/fsimone/ParkingDoubleMuonLowMass6/SkimTau3mu_2022eraF_stream6_Mini_v2/'
+      #path = '/lustre/cms/store/user/mbuonsan/ParkingDoubleMuonLowMass6/SkimTau3mu_2022eraF_stream6_Mini_v3/230504_152445'
    if args.dataset == 'data' and args.run == '2022F_7':
-      path = '/lustre/cms/store/user/mbuonsan/ParkingDoubleMuonLowMass7/SkimTau3mu_2022eraF_stream7_Mini_v3/230504_152514'
+      path = '/lustre/cms/store/user/fsimone/ParkingDoubleMuonLowMass7/SkimTau3mu_2022eraF_stream7_Mini_v2/'
+      #path = '/lustre/cms/store/user/mbuonsan/ParkingDoubleMuonLowMass7/SkimTau3mu_2022eraF_stream7_Mini_v3/230504_152514'
       
    if args.dataset == 'data' and args.run == '2022G_0':
       path = '/lustre/cms/store/user/mbuonsan/ParkingDoubleMuonLowMass0/SkimTau3mu_2022eraG_stream0_Mini_v3/230504_152632'
@@ -534,7 +542,7 @@ if args.anatype == 'control':
 if args.dataset == 'MC' and args.MCprocess == 'Ds_preE':
    path = '/lustre/cms/store/user/mbuonsan/DstoTau_Tauto3Mu_3MuFilter_TuneCP5_13p6TeV_pythia8-evtgen/SkimTau3mu_MCRun3_Ds_new_Mini_preE/230504_170059'
 if args.dataset == 'MC' and args.MCprocess == 'Ds_postE':
-   path = '/lustre/cms/store/user/fsimone/DstoTau_Tauto3Mu_3MuFilter_TuneCP5_13p6TeV_pythia8-evtgen/SkimTau3mu_MCRun3_Ds_Mini_postE_v1/231006_102443/'
+   path = '/lustre/cms/store/user/fsimone/DstoTau_Tauto3Mu_3MuFilter_TuneCP5_13p6TeV_pythia8-evtgen/SkimTau3mu_MCRun3_Ds_Mini_postE_v2/231102_160855/'
    #path = '/lustre/cms/store/user/mbuonsan/DstoTau_Tauto3Mu_3MuFilter_TuneCP5_13p6TeV_pythia8-evtgen/SkimTau3mu_MCRun3_Ds_new_Mini_postE/230504_170127'
 if args.dataset == 'MC' and args.MCprocess == 'Bp_preE':
    path = '/lustre/cms/store/user/mbuonsan/ButoTau_Tauto3Mu_3MuFilter_TuneCP5_13p6TeV_pythia8-evtgen/SkimTau3mu_MCRun3_Bu_Mini_preE/230504_170043'
